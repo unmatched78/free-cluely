@@ -4,7 +4,7 @@
   "main": "./dist-electron/main.js",
   "scripts": {
     "clean": "rimraf dist dist-electron",
-    "dev": "vite",
+    "dev": "vite --port 5180",
     "build": "npm run clean && tsc && vite build",
     "preview": "vite preview",
     "electron:dev": "tsc -p electron/tsconfig.json && electron .",
