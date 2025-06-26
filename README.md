@@ -14,7 +14,7 @@ A desktop application to help you cheat on everything.
 1. Clone the repository:
 ```bash
 git clone [repository-url]
-cd interview-coder
+cd free-cluely
 ```
 
 2. Install dependencies:
@@ -40,7 +40,11 @@ npm run dev -- --port 5180
 
 2. Open another terminal in the same folder and run:
 ```bash
-NODE_ENV=development npm run electron:dev
+NODE_ENV=development npm run electron:dev 
+```
+```bash
+for windows use this way here, in powershell run:
+$env:NODE_ENV="development"; npm run electron:dev
 ```
 
 #### Method 2: Production Mode
