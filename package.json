@@ -7,11 +7,12 @@
     "dev": "vite",
     "build": "npm run clean && tsc && vite build",
     "preview": "vite preview",
-    "electron:dev": "tsc -p electron/tsconfig.json && electron .",
     "app:dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && cross-env electron .\"",
     "app:build": "npm run build && electron-builder",
-    "watch": "tsc -p electron/tsconfig.json --watch"
-  },
+    "watch": "tsc -p electron/tsconfig.json --watch",
+    "electron:dev": "cross-env NODE_ENV=development tsc -p electron/tsconfig.json && electron ."
+},
+
   "build": {
     "appId": "com.electron.interview-coder",
     "productName": "Interview Coder",
