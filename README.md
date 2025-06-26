@@ -45,6 +45,8 @@ NODE_ENV=development npm run electron:dev
 ```bash
 for windows use this way here, in powershell run:
 $env:NODE_ENV="development"; npm run electron:dev
+or using command-prompt run:
+set NODE_ENV=development && npm run electron:dev
 ```
 
 #### Method 2: Production Mode
