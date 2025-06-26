@@ -88,6 +88,9 @@ If you see errors:
 
 ## Contribution
 
-I'm unable to maintain this repo actively because I do not have the time for it. Please do not create issues, if you have any PRs feel free to create them and i'll review and merge it.
+I'm able to maintain this repo actively. Please create issues, engage and share and demand features. if you have any PRs feel free to create them and i'll review and merge it.
 
 If you are looking to integrate this for your company, i can work with you to create custom solutions. 
+
+Recognition; this repo is a fork from the original creator
+-@Prat011
