@@ -93,4 +93,4 @@ I'm able to maintain this repo actively. Please create issues, engage and share 
 If you are looking to integrate this for your company, i can work with you to create custom solutions. 
 
 Recognition; this repo is a fork from the original creator
--@Prat011
+- <a href="https://github.com/Prat011">@Prat011</a>
