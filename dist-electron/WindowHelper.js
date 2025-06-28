@@ -16,6 +16,8 @@ class WindowHelper {
     windowPosition = null;
     windowSize = null;
     appState;
+    isFullscreen = false;
+    preFullscreenState = null;
     // Initialize with explicit number type and 0 value
     screenWidth = 0;
     screenHeight = 0;
@@ -221,6 +223,73 @@ class WindowHelper {
         this.currentY = Number(this.currentY) || 0;
         this.currentY = Math.max(-halfHeight, this.currentY - this.step);
         this.mainWindow.setPosition(Math.round(this.currentX), Math.round(this.currentY));
+    }
+    /**
+     * Toggles the window between fullscreen and normal mode
+     * In fullscreen mode, the window will be visible across the whole screen
+     * In normal mode, it will return to its previous size and position
+     */
+    toggleFullscreen() {
+        if (!this.mainWindow || this.mainWindow.isDestroyed()) {
+            console.warn("Main window does not exist or is destroyed.");
+            return;
+        }
+        if (!this.isFullscreen) {
+            // Save current state before going fullscreen
+            const bounds = this.mainWindow.getBounds();
+            this.preFullscreenState = {
+                position: { x: bounds.x, y: bounds.y },
+                size: { width: bounds.width, height: bounds.height },
+                alwaysOnTop: this.mainWindow.isAlwaysOnTop()
+            };
+            // Get the primary display dimensions
+            const primaryDisplay = electron_1.screen.getPrimaryDisplay();
+            const { width, height } = primaryDisplay.workAreaSize;
+            // Set window to fullscreen-like state
+            this.mainWindow.setAlwaysOnTop(true, "screen-saver");
+            this.mainWindow.setPosition(0, 0);
+            this.mainWindow.setSize(width, height);
+            this.mainWindow.setResizable(false);
+            // Update internal state
+            this.isFullscreen = true;
+            this.isWindowVisible = true;
+            this.windowPosition = { x: 0, y: 0 };
+            this.windowSize = { width, height };
+            this.currentX = 0;
+            this.currentY = 0;
+        }
+        else {
+            // Restore previous state
+            if (this.preFullscreenState) {
+                const { position, size, alwaysOnTop } = this.preFullscreenState;
+                if (position && size) {
+                    this.mainWindow.setResizable(true);
+                    this.mainWindow.setBounds({
+                        x: position.x,
+                        y: position.y,
+                        width: size.width,
+                        height: size.height
+                    });
+                    // Restore alwaysOnTop setting
+                    if (process.platform === "darwin") {
+                        this.mainWindow.setAlwaysOnTop(true, "floating");
+                    }
+                    else {
+                        this.mainWindow.setAlwaysOnTop(alwaysOnTop);
+                    }
+                    // Update internal state
+                    this.windowPosition = position;
+                    this.windowSize = size;
+                    this.currentX = position.x;
+                    this.currentY = position.y;
+                }
+            }
+            this.isFullscreen = false;
+        }
+        // Make sure the window is visible
+        if (!this.mainWindow.isVisible()) {
+            this.mainWindow.show();
+        }
     }
 }
 exports.WindowHelper = WindowHelper;
