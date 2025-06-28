@@ -4,7 +4,6 @@
   "main": "./dist-electron/main.js",
   "scripts": {
     "clean": "rimraf dist dist-electron",
-    
     "dev": "vite --port 5180",
     "build": "npm run clean && tsc && vite build",
     "preview": "vite preview",
@@ -14,8 +13,7 @@
     "watch": "tsc -p electron/tsconfig.json --watch",
     "test:fullscreen": "tsc -p tsconfig.test.json && electron --no-sandbox test-fullscreen.js",
     "worker:build": "tsc -p worker-script/tsconfig.json"
-},
-
+  },
   "build": {
     "appId": "com.electron.interview-coder",
     "productName": "Interview Coder",
@@ -90,8 +88,13 @@
     "wait-on": "^8.0.1"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.55.0",
     "@google/genai": "^0.12.0",
     "@google/generative-ai": "^0.2.1",
+    "@langchain/anthropic": "^0.3.23",
+    "@langchain/mistralai": "^0.2.1",
+    "@langchain/openai": "^0.5.16",
+    "@mistralai/mistralai": "^1.7.2",
     "@radix-ui/react-dialog": "^1.1.2",
     "@radix-ui/react-toast": "^1.2.2",
     "axios": "^1.7.7",
@@ -99,7 +102,9 @@
     "clsx": "^2.1.1",
     "diff": "^7.0.0",
     "form-data": "^4.0.1",
+    "langchain": "^0.3.29",
     "lucide-react": "^0.460.0",
+    "openai": "^5.8.2",
     "react": "^18.3.1",
     "react-code-blocks": "^0.1.6",
     "react-dom": "^18.3.1",
