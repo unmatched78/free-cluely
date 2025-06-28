@@ -8,10 +8,12 @@
     "dev": "vite --port 5180",
     "build": "npm run clean && tsc && vite build",
     "preview": "vite preview",
-    "electron:dev": "tsc -p electron/tsconfig.json && electron .",
-    "app:dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && cross-env electron .\"",
+    "electron:dev": "tsc -p electron/tsconfig.json && electron --no-sandbox .",
+    "app:dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && cross-env electron --no-sandbox .\"",
     "app:build": "npm run build && electron-builder",
-    "watch": "tsc -p electron/tsconfig.json --watch"
+    "watch": "tsc -p electron/tsconfig.json --watch",
+    "test:fullscreen": "tsc -p tsconfig.test.json && electron --no-sandbox test-fullscreen.js",
+    "worker:build": "tsc -p worker-script/tsconfig.json"
 },
 
   "build": {
