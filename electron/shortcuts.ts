@@ -89,6 +89,12 @@ export class ShortcutsHelper {
         }
       }
     })
+    
+    // Register fullscreen toggle shortcut (CommandOrControl+F)
+    globalShortcut.register("CommandOrControl+F", () => {
+      console.log("Command/Ctrl + F pressed. Toggling fullscreen mode.")
+      this.appState.toggleFullscreen()
+    })
 
     // Unregister shortcuts when quitting
     app.on("will-quit", () => {

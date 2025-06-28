@@ -177,6 +177,10 @@ export class AppState {
     this.windowHelper.moveWindowUp()
   }
 
+  public toggleFullscreen(): void {
+    this.windowHelper.toggleFullscreen()
+  }
+
   public setHasDebugged(value: boolean): void {
     this.hasDebugged = value
   }
