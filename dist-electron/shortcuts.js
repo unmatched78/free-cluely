@@ -77,6 +77,11 @@ class ShortcutsHelper {
                 }
             }
         });
+        // Register fullscreen toggle shortcut (CommandOrControl+F)
+        electron_1.globalShortcut.register("CommandOrControl+F", () => {
+            console.log("Command/Ctrl + F pressed. Toggling fullscreen mode.");
+            this.appState.toggleFullscreen();
+        });
         // Unregister shortcuts when quitting
         electron_1.app.on("will-quit", () => {
             electron_1.globalShortcut.unregisterAll();

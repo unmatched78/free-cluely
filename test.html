@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Cluely - Fullscreen Toggle Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f0f0;
+      overflow: hidden;
+    }
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      transition: all 0.3s ease;
+    }
+    .header {
+      background-color: #2c3e50;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .content {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .sidebar {
+      width: 250px;
+      background-color: #34495e;
+      color: white;
+      padding: 20px;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: -250px;
+      transition: left 0.3s ease;
+    }
+    .sidebar.visible {
+      left: 0;
+    }
+    .main-content {
+      margin-left: 0;
+      transition: margin-left 0.3s ease;
+    }
+    .main-content.sidebar-visible {
+      margin-left: 250px;
+    }
+    .fullscreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 9999;
+      background-color: white;
+    }
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    .status-bar {
+      background-color: #ecf0f1;
+      padding: 10px 20px;
+      border-top: 1px solid #bdc3c7;
+      display: flex;
+      justify-content: space-between;
+    }
+    .keyboard-shortcuts {
+      background-color: white;
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .keyboard-shortcuts h3 {
+      margin-top: 0;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+    }
+    .shortcut {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .key {
+      background-color: #f5f5f5;
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      font-family: monospace;
+    }
+    .code-section {
+      background-color: white;
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    pre {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container" id="appContainer">
+    <div class="sidebar" id="sidebar">
+      <h2>Cluely</h2>
+      <p>Navigation</p>
+      <ul>
+        <li>Home</li>
+        <li>Solutions</li>
+        <li>Settings</li>
+      </ul>
+      <div class="keyboard-shortcuts">
+        <h3>Keyboard Shortcuts</h3>
+        <div class="shortcut">
+          <span>Toggle Sidebar</span>
+          <span><span class="key">Cmd/Ctrl</span> + <span class="key">B</span></span>
+        </div>
+        <div class="shortcut">
+          <span>Take Screenshot</span>
+          <span><span class="key">Cmd/Ctrl</span> + <span class="key">H</span></span>
+        </div>
+        <div class="shortcut">
+          <span>Get Solution</span>
+          <span><span class="key">Cmd/Ctrl</span> + <span class="key">Enter</span></span>
+        </div>
+        <div class="shortcut">
+          <span>Move Window</span>
+          <span><span class="key">Cmd/Ctrl</span> + <span class="key">Arrow Keys</span></span>
+        </div>
+        <div class="shortcut">
+          <span>Toggle Fullscreen</span>
+          <span><span class="key">Cmd/Ctrl</span> + <span class="key">F</span></span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="main-content" id="mainContent">
+      <div class="header">
+        <div>
+          <button id="toggleSidebar">Toggle Sidebar</button>
+          <button id="toggleFullscreen">Toggle Fullscreen</button>
+        </div>
+        <div>
+          <span id="status">Normal Mode</span>
+        </div>
+      </div>
+      
+      <div class="content">
+        <h1>Fullscreen Toggle Test</h1>
+        <p>This page simulates the Cluely application and tests the fullscreen toggle functionality.</p>
+        
+        <div class="keyboard-shortcuts">
+          <h3>Test Instructions</h3>
+          <p>You can test the fullscreen functionality in two ways:</p>
+          <ol>
+            <li>Click the "Toggle Fullscreen" button in the header</li>
+            <li>Press <span class="key">Cmd/Ctrl</span> + <span class="key">F</span> on your keyboard</li>
+          </ol>
+          <p>The status in the header will update to show the current mode.</p>
+        </div>
+        
+        <div class="code-section">
+          <h2>Implementation Details</h2>
+          <p>Here's how the fullscreen toggle is implemented in the Electron app:</p>
+          <pre>
+// WindowHelper.ts
+public toggleFullscreen(): void {
+  if (!this.mainWindow || this.mainWindow.isDestroyed()) {
+    console.warn("Main window does not exist or is destroyed.");
+    return;
+  }
+
+  if (!this.isFullscreen) {
+    // Save current state before going fullscreen
+    const bounds = this.mainWindow.getBounds();
+    this.preFullscreenState = {
+      position: { x: bounds.x, y: bounds.y },
+      size: { width: bounds.width, height: bounds.height },
+      alwaysOnTop: this.mainWindow.isAlwaysOnTop()
+    };
+
+    // Get the primary display dimensions
+    const primaryDisplay = screen.getPrimaryDisplay();
+    const { width, height } = primaryDisplay.workAreaSize;
+
+    // Set window to fullscreen-like state
+    this.mainWindow.setAlwaysOnTop(true, "screen-saver");
+    this.mainWindow.setPosition(0, 0);
+    this.mainWindow.setSize(width, height);
+    this.mainWindow.setResizable(false);
+    
+    this.isFullscreen = true;
+  } else {
+    // Restore previous state
+    if (this.preFullscreenState) {
+      const { position, size, alwaysOnTop } = this.preFullscreenState;
+      
+      if (position && size) {
+        this.mainWindow.setResizable(true);
+        this.mainWindow.setBounds({
+          x: position.x,
+          y: position.y,
+          width: size.width,
+          height: size.height
+        });
+        
+        this.mainWindow.setAlwaysOnTop(alwaysOnTop);
+      }
+    }
+    
+    this.isFullscreen = false;
+  }
+
+  // Make sure the window is visible
+  if (!this.mainWindow.isVisible()) {
+    this.mainWindow.show();
+  }
+}</pre>
+        </div>
+      </div>
+      
+      <div class="status-bar">
+        <div>Cluely - Fullscreen Toggle Test</div>
+        <div>Press Cmd/Ctrl+F to toggle fullscreen</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // DOM elements
+    const appContainer = document.getElementById('appContainer');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    const toggleSidebarBtn = document.getElementById('toggleSidebar');
+    const toggleFullscreenBtn = document.getElementById('toggleFullscreen');
+    const statusElement = document.getElementById('status');
+    
+    // State
+    let isSidebarVisible = false;
+    let isFullscreen = false;
+    
+    // Toggle sidebar
+    function toggleSidebar() {
+      isSidebarVisible = !isSidebarVisible;
+      sidebar.classList.toggle('visible', isSidebarVisible);
+      mainContent.classList.toggle('sidebar-visible', isSidebarVisible);
+    }
+    
+    // Toggle fullscreen
+    function toggleFullscreen() {
+      isFullscreen = !isFullscreen;
+      appContainer.classList.toggle('fullscreen', isFullscreen);
+      statusElement.textContent = isFullscreen ? 'Fullscreen Mode' : 'Normal Mode';
+      
+      // Browser fullscreen API (simulates Electron behavior)
+      if (isFullscreen) {
+        if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen().catch(err => {
+            console.error('Error attempting to enable fullscreen mode:', err);
+          });
+        }
+      } else {
+        if (document.exitFullscreen && document.fullscreenElement) {
+          document.exitFullscreen();
+        }
+      }
+    }
+    
+    // Event listeners
+    toggleSidebarBtn.addEventListener('click', toggleSidebar);
+    toggleFullscreenBtn.addEventListener('click', toggleFullscreen);
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (event) => {
+      // Toggle sidebar: Cmd/Ctrl + B
+      if ((event.metaKey || event.ctrlKey) && event.key === 'b') {
+        event.preventDefault();
+        toggleSidebar();
+      }
+      
+      // Toggle fullscreen: Cmd/Ctrl + F
+      if ((event.metaKey || event.ctrlKey) && event.key === 'f') {
+        event.preventDefault();
+        toggleFullscreen();
+      }
+    });
+  </script>
+</body>
+</html>

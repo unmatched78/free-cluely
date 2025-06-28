@@ -58,6 +58,14 @@ export function initializeIpcHandlers(appState: AppState): void {
   ipcMain.handle("toggle-window", async () => {
     appState.toggleMainWindow()
   })
+  
+  ipcMain.handle("move-window-left", async () => {
+    appState.moveWindowLeft()
+  })
+  
+  ipcMain.handle("move-window-right", async () => {
+    appState.moveWindowRight()
+  })
 
   ipcMain.handle("reset-queues", async () => {
     try {
@@ -105,5 +113,10 @@ export function initializeIpcHandlers(appState: AppState): void {
 
   ipcMain.handle("quit-app", () => {
     app.quit()
+  })
+
+  // IPC handler for toggling fullscreen mode
+  ipcMain.handle("toggle-fullscreen", () => {
+    appState.toggleFullscreen()
   })
 }

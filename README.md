@@ -75,8 +75,9 @@ The built app will be in the `release` folder.
 3. **Keyboard Shortcuts**:
    - `Cmd/Ctrl + B`: Toggle window visibility
    - `Cmd/Ctrl + H`: Take screenshot
-   - 'Cmd/Enter': Get solution
+   - `Cmd/Ctrl + Enter`: Get solution
    - `Cmd/Ctrl + Arrow Keys`: Move window
+   - `Cmd/Ctrl + F`: Toggle fullscreen mode (makes the app visible across the whole screen)
 
 ### Troubleshooting
 

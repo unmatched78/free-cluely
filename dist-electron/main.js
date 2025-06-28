@@ -127,6 +127,9 @@ class AppState {
     moveWindowUp() {
         this.windowHelper.moveWindowUp();
     }
+    toggleFullscreen() {
+        this.windowHelper.toggleFullscreen();
+    }
     setHasDebugged(value) {
         this.hasDebugged = value;
     }
