@@ -6,7 +6,7 @@ const ipcHandlers_1 = require("./ipcHandlers");
 const WindowHelper_1 = require("./WindowHelper");
 const ScreenshotHelper_1 = require("./ScreenshotHelper");
 const shortcuts_1 = require("./shortcuts");
-const ProcessingHelper_1 = require("./ProcessingHelper");
+const ProcessingHelperMock_1 = require("./ProcessingHelperMock");
 class AppState {
     static instance = null;
     windowHelper;
@@ -38,7 +38,7 @@ class AppState {
         // Initialize ScreenshotHelper
         this.screenshotHelper = new ScreenshotHelper_1.ScreenshotHelper(this.view);
         // Initialize ProcessingHelper
-        this.processingHelper = new ProcessingHelper_1.ProcessingHelper(this);
+        this.processingHelper = new ProcessingHelperMock_1.ProcessingHelper(this);
         // Initialize ShortcutsHelper
         this.shortcutsHelper = new shortcuts_1.ShortcutsHelper(this);
     }
