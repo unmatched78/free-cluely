@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # Production build service
+  build:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: free-cluely-build
+    environment:
+      - NODE_ENV=production
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-dummy-api-key}
+    command: npm run build
+    volumes:
+      - ./release:/app/release
+    networks:
+      - free-cluely-network
+
+  # Electron app service for production
+  electron-app:
+    build:
+      context: .
+      dockerfile: Dockerfile.electron
+    container_name: free-cluely-electron-prod
+    environment:
+      - NODE_ENV=production
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-dummy-api-key}
+      - DISPLAY=:99
+    command: >
+      bash -c "Xvfb :99 -screen 0 1024x768x16 -ac &
+              sleep 5 &&
+              npm run app:build"
+    volumes:
+      - ./release:/app/release
+    depends_on:
+      - build
+    networks:
+      - free-cluely-network
+
+networks:
+  free-cluely-network:
+    driver: bridge
