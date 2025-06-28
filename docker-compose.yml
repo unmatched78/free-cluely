@@ -1,31 +1,47 @@
-version: '3'
+version: '3.8'
 
 services:
+  # React frontend service
   react-app:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: free-cluely-frontend
     ports:
       - "5180:5180"
     environment:
-      - GEMINI_API_KEY=dummy-api-key
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-dummy-api-key}
       - NODE_ENV=development
     command: npm run dev -- --host 0.0.0.0
     volumes:
       - ./src:/app/src
       - ./public:/app/public
-      - ./vite.config.js:/app/vite.config.js
+      - ./vite.config.ts:/app/vite.config.ts
+    networks:
+      - free-cluely-network
 
+  # Electron app service
   electron-app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.electron
+    container_name: free-cluely-electron
     environment:
-      - GEMINI_API_KEY=dummy-api-key
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-dummy-api-key}
       - NODE_ENV=development
       - DISPLAY=:99
     command: >
       bash -c "Xvfb :99 -screen 0 1024x768x16 -ac &
-              sleep 2 &&
+              sleep 5 &&
               npm run electron:dev"
     volumes:
       - ./electron:/app/electron
       - ./dist-electron:/app/dist-electron
     depends_on:
       - react-app
+    networks:
+      - free-cluely-network
+
+networks:
+  free-cluely-network:
+    driver: bridge
