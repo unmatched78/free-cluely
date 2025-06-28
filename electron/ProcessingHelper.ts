@@ -2,6 +2,7 @@
 
 import { AppState } from "./main"
 import { LLMHelper } from "./LLMHelper"
+import { ProviderType } from "./ai-providers"
 import dotenv from "dotenv"
 
 dotenv.config()
@@ -18,11 +19,42 @@ export class ProcessingHelper {
 
   constructor(appState: AppState) {
     this.appState = appState
-    const apiKey = process.env.GEMINI_API_KEY
-    if (!apiKey) {
-      throw new Error("GEMINI_API_KEY not found in environment variables")
+    
+    // Determine which AI provider to use based on environment variables
+    let providerType: ProviderType = "gemini";
+    let apiKey: string | undefined;
+    let model: string | undefined;
+    
+    // Check for Gemini API key
+    if (process.env.GEMINI_API_KEY) {
+      providerType = "gemini";
+      apiKey = process.env.GEMINI_API_KEY;
+      model = process.env.GEMINI_MODEL;
+    } 
+    // Check for OpenAI API key
+    else if (process.env.OPENAI_API_KEY) {
+      providerType = "openai";
+      apiKey = process.env.OPENAI_API_KEY;
+      model = process.env.OPENAI_MODEL;
     }
-    this.llmHelper = new LLMHelper(apiKey)
+    // Check for Claude API key
+    else if (process.env.ANTHROPIC_API_KEY) {
+      providerType = "claude";
+      apiKey = process.env.ANTHROPIC_API_KEY;
+      model = process.env.CLAUDE_MODEL;
+    }
+    // Check for Mistral API key
+    else if (process.env.MISTRAL_API_KEY) {
+      providerType = "mistral";
+      apiKey = process.env.MISTRAL_API_KEY;
+      model = process.env.MISTRAL_MODEL;
+    }
+    
+    if (!apiKey) {
+      throw new Error("No API key found in environment variables. Please set one of: GEMINI_API_KEY, OPENAI_API_KEY, ANTHROPIC_API_KEY, or MISTRAL_API_KEY");
+    }
+    
+    this.llmHelper = new LLMHelper(apiKey, providerType, model);
   }
 
   public async processScreenshots(): Promise<void> {
@@ -56,7 +88,7 @@ export class ProcessingHelper {
         }
       }
 
-      // NEW: Handle screenshot as plain text (like audio)
+      // Handle screenshot as plain text (like audio)
       mainWindow.webContents.send(this.appState.PROCESSING_EVENTS.INITIAL_START)
       this.appState.setView("solutions")
       this.currentProcessingAbortController = new AbortController()
@@ -154,5 +186,23 @@ export class ProcessingHelper {
 
   public getLLMHelper() {
     return this.llmHelper;
+  }
+  
+  // Change AI provider
+  public setAIProvider(providerType: ProviderType, apiKey: string, model?: string) {
+    this.llmHelper.setProvider(providerType, {
+      apiKey,
+      model
+    });
+  }
+  
+  // Get current AI provider info
+  public getCurrentAIProvider() {
+    return this.llmHelper.getCurrentProvider();
+  }
+  
+  // Get available AI providers
+  public getAvailableAIProviders() {
+    return this.llmHelper.getAvailableProviders();
   }
 }

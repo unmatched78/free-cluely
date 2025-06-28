@@ -27,16 +27,24 @@ A powerful desktop application that uses Google's Gemini AI to help you solve pr
 
 ## 🔍 Overview
 
-Free Cluely is an Electron-based desktop application that combines the power of React for the frontend and Node.js for the backend. It uses Google's Gemini AI to analyze screenshots and provide intelligent solutions to problems displayed on your screen. The application is designed to be always accessible, floating on top of other windows, making it perfect for quick problem-solving without disrupting your workflow.
+Free Cluely is an Electron-based desktop application that combines the power of React for the frontend and Node.js for the backend. It uses AI to analyze screenshots and provide intelligent solutions to problems displayed on your screen. The application is designed to be always accessible, floating on top of other windows, making it perfect for quick problem-solving without disrupting your workflow.
+
+Free Cluely supports multiple AI providers:
+- **Google Gemini** - Google's powerful multimodal AI model
+- **OpenAI** - Including GPT-4o and other models with vision capabilities
+- **Anthropic Claude** - Claude 3 Opus, Sonnet, and Haiku models
+- **Mistral AI** - Mistral Large, Medium, and Small models
 
 ## ✨ Features
 
 - **Screenshot Analysis**: Capture your screen and get AI-powered solutions
+- **Multiple AI Providers**: Support for Google Gemini, OpenAI, Anthropic Claude, and Mistral AI
 - **Floating Window**: Always stays on top for easy access
 - **Fullscreen Mode**: Expand the application to cover your entire screen
 - **Keyboard Shortcuts**: Quick access to all features
 - **Dark/Light Mode**: Comfortable viewing in any environment
 - **History**: Save and access your previous queries and solutions
+- **Audio Analysis**: Process audio files for transcription and analysis
 - **TypeScript Support**: Fully typed codebase for better development experience
 - **Cross-Platform**: Works on Windows, macOS, and Linux
 
@@ -48,7 +56,11 @@ Before you begin, ensure you have the following installed:
 - **npm** (v8.x or higher)
 - **Git**
 - **Docker** (optional, for containerized setup)
-- **A Gemini API key** (get it from [Google AI Studio](https://makersuite.google.com/app/apikey))
+- **At least one AI provider API key**:
+  - **Google Gemini API key** (get it from [Google AI Studio](https://makersuite.google.com/app/apikey))
+  - **OpenAI API key** (get it from [OpenAI Platform](https://platform.openai.com/api-keys))
+  - **Anthropic Claude API key** (get it from [Anthropic Console](https://console.anthropic.com/))
+  - **Mistral AI API key** (get it from [Mistral AI Platform](https://console.mistral.ai/))
 
 ## 📥 Installation
 
@@ -67,9 +79,24 @@ Before you begin, ensure you have the following installed:
 
 3. **Set up environment variables**:
    - Create a file named `.env` in the root folder
-   - Add your Gemini API key:
+   - Add at least one of the following API keys:
    ```
-   GEMINI_API_KEY=your_api_key_here
+   # Google Gemini
+   GEMINI_API_KEY=your_gemini_api_key_here
+   
+   # OpenAI
+   # OPENAI_API_KEY=your_openai_api_key_here
+   
+   # Anthropic Claude
+   # ANTHROPIC_API_KEY=your_anthropic_api_key_here
+   
+   # Mistral AI
+   # MISTRAL_API_KEY=your_mistral_api_key_here
+   ```
+   - You can also copy the `.env.example` file and modify it:
+   ```bash
+   cp .env.example .env
+   # Then edit .env with your API key(s)
    ```
 
 ### Docker Setup
@@ -80,7 +107,7 @@ Before you begin, ensure you have the following installed:
    cd free-cluely
    ```
 
-2. **Create a `.env` file with your Gemini API key** (as described in Local Setup)
+2. **Create a `.env` file with at least one AI provider API key** (as described in Local Setup)
 
 3. **Build and run with Docker Compose**:
    ```bash
@@ -229,22 +256,35 @@ Free Cluely uses a multi-process architecture:
 
 1. **Main Process** (Electron): Handles window management, global shortcuts, and system integration
 2. **Renderer Process** (React): Manages the user interface and user interactions
-3. **Worker Process**: Handles API calls to Google Gemini and processes screenshots
+3. **Worker Process**: Handles API calls to AI providers and processes screenshots
 
 ### Technologies Used
 
 - **Frontend**: React, TypeScript, Tailwind CSS
 - **Backend**: Node.js, Electron
 - **Build Tools**: Vite, TypeScript, PostCSS
-- **AI Integration**: Google Gemini API
+- **AI Integration**:
+  - Google Gemini API
+  - OpenAI API
+  - Anthropic Claude API
+  - Mistral AI API
 - **Containerization**: Docker, Docker Compose
+
+### AI Provider System
+
+Free Cluely uses a flexible AI provider system that allows you to choose between different AI models:
+
+1. **Provider Factory**: A singleton factory that manages all AI providers
+2. **Provider Interface**: A common interface implemented by all providers
+3. **Provider-specific Implementations**: Each AI provider has its own implementation
+4. **Configuration**: Configure providers through environment variables
 
 ### Communication Flow
 
 1. User takes a screenshot (Cmd/Ctrl + H)
 2. Screenshot is captured by Electron's `desktopCapturer`
 3. Image is processed and sent to the worker process
-4. Worker process sends the image to Google Gemini API
+4. Worker process sends the image to the selected AI provider (Gemini, OpenAI, Claude, or Mistral)
 5. Response is received and displayed in the UI
 
 ## ❓ Troubleshooting
@@ -268,9 +308,10 @@ Free Cluely uses a multi-process architecture:
    - Verify that the React development server is running
 
 3. **API key issues**:
-   - Verify your Gemini API key is correct in the `.env` file
+   - Verify your AI provider API key is correct in the `.env` file
    - Ensure the API key has the necessary permissions
    - Check if you've reached API rate limits
+   - Try using a different AI provider if one is not working
 
 4. **Screenshot not working**:
    - Make sure you've granted screen recording permissions (especially on macOS)
@@ -357,6 +398,9 @@ This project is a fork from the original creator [@Prat011](https://github.com/P
 - [Vite](https://vitejs.dev/) - Frontend build tool
 - [Tailwind CSS](https://tailwindcss.com/) - CSS framework
 - [Google Gemini AI](https://ai.google.dev/) - AI model for generating solutions
+- [OpenAI](https://openai.com/) - GPT models for AI solutions
+- [Anthropic Claude](https://www.anthropic.com/) - Claude AI models
+- [Mistral AI](https://mistral.ai/) - Mistral AI models
 
 ## 📞 Support
 
