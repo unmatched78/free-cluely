@@ -18,11 +18,38 @@ class ProcessingHelper {
     currentExtraProcessingAbortController = null;
     constructor(appState) {
         this.appState = appState;
-        const apiKey = process.env.GEMINI_API_KEY;
-        if (!apiKey) {
-            throw new Error("GEMINI_API_KEY not found in environment variables");
+        // Determine which AI provider to use based on environment variables
+        let providerType = "gemini";
+        let apiKey;
+        let model;
+        // Check for Gemini API key
+        if (process.env.GEMINI_API_KEY) {
+            providerType = "gemini";
+            apiKey = process.env.GEMINI_API_KEY;
+            model = process.env.GEMINI_MODEL;
         }
-        this.llmHelper = new LLMHelper_1.LLMHelper(apiKey);
+        // Check for OpenAI API key
+        else if (process.env.OPENAI_API_KEY) {
+            providerType = "openai";
+            apiKey = process.env.OPENAI_API_KEY;
+            model = process.env.OPENAI_MODEL;
+        }
+        // Check for Claude API key
+        else if (process.env.ANTHROPIC_API_KEY) {
+            providerType = "claude";
+            apiKey = process.env.ANTHROPIC_API_KEY;
+            model = process.env.CLAUDE_MODEL;
+        }
+        // Check for Mistral API key
+        else if (process.env.MISTRAL_API_KEY) {
+            providerType = "mistral";
+            apiKey = process.env.MISTRAL_API_KEY;
+            model = process.env.MISTRAL_MODEL;
+        }
+        if (!apiKey) {
+            throw new Error("No API key found in environment variables. Please set one of: GEMINI_API_KEY, OPENAI_API_KEY, ANTHROPIC_API_KEY, or MISTRAL_API_KEY");
+        }
+        this.llmHelper = new LLMHelper_1.LLMHelper(apiKey, providerType, model);
     }
     async processScreenshots() {
         const mainWindow = this.appState.getMainWindow();
@@ -53,7 +80,7 @@ class ProcessingHelper {
                     return;
                 }
             }
-            // NEW: Handle screenshot as plain text (like audio)
+            // Handle screenshot as plain text (like audio)
             mainWindow.webContents.send(this.appState.PROCESSING_EVENTS.INITIAL_START);
             this.appState.setView("solutions");
             this.currentProcessingAbortController = new AbortController();
@@ -134,6 +161,21 @@ class ProcessingHelper {
     }
     getLLMHelper() {
         return this.llmHelper;
+    }
+    // Change AI provider
+    setAIProvider(providerType, apiKey, model) {
+        this.llmHelper.setProvider(providerType, {
+            apiKey,
+            model
+        });
+    }
+    // Get current AI provider info
+    getCurrentAIProvider() {
+        return this.llmHelper.getCurrentProvider();
+    }
+    // Get available AI providers
+    getAvailableAIProviders() {
+        return this.llmHelper.getAvailableProviders();
     }
 }
 exports.ProcessingHelper = ProcessingHelper;

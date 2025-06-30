@@ -1,47 +1,28 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LLMHelper = void 0;
-const generative_ai_1 = require("@google/generative-ai");
-const fs_1 = __importDefault(require("fs"));
+const ai_providers_1 = require("./ai-providers");
 class LLMHelper {
-    model;
+    providerFactory;
     systemPrompt = `You are Wingman AI, a helpful, proactive assistant for any kind of problem or situation (not just coding). For any user input, analyze the situation, provide a clear problem statement, relevant context, and suggest several possible responses or actions the user could take next. Always explain your reasoning. Present your suggestions as a list of options or next steps.`;
-    constructor(apiKey) {
-        const genAI = new generative_ai_1.GoogleGenerativeAI(apiKey);
-        this.model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-    }
-    async fileToGenerativePart(imagePath) {
-        const imageData = await fs_1.default.promises.readFile(imagePath);
-        return {
-            inlineData: {
-                data: imageData.toString("base64"),
-                mimeType: "image/png"
-            }
+    constructor(apiKey, providerType = "gemini", model) {
+        this.providerFactory = ai_providers_1.AIProviderFactory.getInstance();
+        // Initialize the provider
+        const config = {
+            apiKey,
+            model,
+            systemPrompt: this.systemPrompt
         };
-    }
-    cleanJsonResponse(text) {
-        // Remove markdown code block syntax if present
-        text = text.replace(/^```(?:json)?\n/, '').replace(/\n```$/, '');
-        // Remove any leading/trailing whitespace
-        text = text.trim();
-        return text;
+        this.providerFactory.initializeProvider(providerType, config);
+        this.providerFactory.setActiveProvider(providerType);
     }
     async extractProblemFromImages(imagePaths) {
         try {
-            const imageParts = await Promise.all(imagePaths.map(path => this.fileToGenerativePart(path)));
-            const prompt = `${this.systemPrompt}\n\nYou are a wingman. Please analyze these images and extract the following information in JSON format:\n{
-  "problem_statement": "A clear statement of the problem or situation depicted in the images.",
-  "context": "Relevant background or context from the images.",
-  "suggested_responses": ["First possible answer or action", "Second possible answer or action", "..."],
-  "reasoning": "Explanation of why these suggestions are appropriate."
-}\nImportant: Return ONLY the JSON object, without any markdown formatting or code blocks.`;
-            const result = await this.model.generateContent([prompt, ...imageParts]);
-            const response = await result.response;
-            const text = this.cleanJsonResponse(response.text());
-            return JSON.parse(text);
+            const provider = this.providerFactory.getActiveProvider();
+            if (!provider.supportsImageAnalysis()) {
+                throw new Error(`Provider ${provider.getProviderName()} does not support image analysis`);
+            }
+            return await provider.extractProblemFromImages(imagePaths);
         }
         catch (error) {
             console.error("Error extracting problem from images:", error);
@@ -49,24 +30,13 @@ class LLMHelper {
         }
     }
     async generateSolution(problemInfo) {
-        const prompt = `${this.systemPrompt}\n\nGiven this problem or situation:\n${JSON.stringify(problemInfo, null, 2)}\n\nPlease provide your response in the following JSON format:\n{
-  "solution": {
-    "code": "The code or main answer here.",
-    "problem_statement": "Restate the problem or situation.",
-    "context": "Relevant background/context.",
-    "suggested_responses": ["First possible answer or action", "Second possible answer or action", "..."],
-    "reasoning": "Explanation of why these suggestions are appropriate."
-  }
-}\nImportant: Return ONLY the JSON object, without any markdown formatting or code blocks.`;
-        console.log("[LLMHelper] Calling Gemini LLM for solution...");
+        console.log(`[LLMHelper] Calling ${this.providerFactory.getActiveProvider().getProviderName()} for solution...`);
         try {
-            const result = await this.model.generateContent(prompt);
-            console.log("[LLMHelper] Gemini LLM returned result.");
-            const response = await result.response;
-            const text = this.cleanJsonResponse(response.text());
-            const parsed = JSON.parse(text);
-            console.log("[LLMHelper] Parsed LLM response:", parsed);
-            return parsed;
+            const provider = this.providerFactory.getActiveProvider();
+            const result = await provider.generateSolution(problemInfo);
+            console.log(`[LLMHelper] ${provider.getProviderName()} returned result.`);
+            console.log("[LLMHelper] Parsed LLM response:", result);
+            return result;
         }
         catch (error) {
             console.error("[LLMHelper] Error in generateSolution:", error);
@@ -75,22 +45,13 @@ class LLMHelper {
     }
     async debugSolutionWithImages(problemInfo, currentCode, debugImagePaths) {
         try {
-            const imageParts = await Promise.all(debugImagePaths.map(path => this.fileToGenerativePart(path)));
-            const prompt = `${this.systemPrompt}\n\nYou are a wingman. Given:\n1. The original problem or situation: ${JSON.stringify(problemInfo, null, 2)}\n2. The current response or approach: ${currentCode}\n3. The debug information in the provided images\n\nPlease analyze the debug information and provide feedback in this JSON format:\n{
-  "solution": {
-    "code": "The code or main answer here.",
-    "problem_statement": "Restate the problem or situation.",
-    "context": "Relevant background/context.",
-    "suggested_responses": ["First possible answer or action", "Second possible answer or action", "..."],
-    "reasoning": "Explanation of why these suggestions are appropriate."
-  }
-}\nImportant: Return ONLY the JSON object, without any markdown formatting or code blocks.`;
-            const result = await this.model.generateContent([prompt, ...imageParts]);
-            const response = await result.response;
-            const text = this.cleanJsonResponse(response.text());
-            const parsed = JSON.parse(text);
-            console.log("[LLMHelper] Parsed debug LLM response:", parsed);
-            return parsed;
+            const provider = this.providerFactory.getActiveProvider();
+            if (!provider.supportsImageAnalysis()) {
+                throw new Error(`Provider ${provider.getProviderName()} does not support image analysis`);
+            }
+            const result = await provider.debugSolutionWithImages(problemInfo, currentCode, debugImagePaths);
+            console.log(`[LLMHelper] Parsed debug ${provider.getProviderName()} response:`, result);
+            return result;
         }
         catch (error) {
             console.error("Error debugging solution with images:", error);
@@ -99,18 +60,11 @@ class LLMHelper {
     }
     async analyzeAudioFile(audioPath) {
         try {
-            const audioData = await fs_1.default.promises.readFile(audioPath);
-            const audioPart = {
-                inlineData: {
-                    data: audioData.toString("base64"),
-                    mimeType: "audio/mp3"
-                }
-            };
-            const prompt = `${this.systemPrompt}\n\nDescribe this audio clip in a short, concise answer. In addition to your main answer, suggest several possible actions or responses the user could take next based on the audio. Do not return a structured JSON object, just answer naturally as you would to a user.`;
-            const result = await this.model.generateContent([prompt, audioPart]);
-            const response = await result.response;
-            const text = response.text();
-            return { text, timestamp: Date.now() };
+            const provider = this.providerFactory.getActiveProvider();
+            if (!provider.supportsAudioAnalysis()) {
+                throw new Error(`Provider ${provider.getProviderName()} does not support audio analysis`);
+            }
+            return await provider.analyzeAudioFile(audioPath);
         }
         catch (error) {
             console.error("Error analyzing audio file:", error);
@@ -119,17 +73,11 @@ class LLMHelper {
     }
     async analyzeAudioFromBase64(data, mimeType) {
         try {
-            const audioPart = {
-                inlineData: {
-                    data,
-                    mimeType
-                }
-            };
-            const prompt = `${this.systemPrompt}\n\nDescribe this audio clip in a short, concise answer. In addition to your main answer, suggest several possible actions or responses the user could take next based on the audio. Do not return a structured JSON object, just answer naturally as you would to a user and be concise.`;
-            const result = await this.model.generateContent([prompt, audioPart]);
-            const response = await result.response;
-            const text = response.text();
-            return { text, timestamp: Date.now() };
+            const provider = this.providerFactory.getActiveProvider();
+            if (!provider.supportsAudioAnalysis()) {
+                throw new Error(`Provider ${provider.getProviderName()} does not support audio analysis`);
+            }
+            return await provider.analyzeAudioFromBase64(data, mimeType);
         }
         catch (error) {
             console.error("Error analyzing audio from base64:", error);
@@ -138,23 +86,33 @@ class LLMHelper {
     }
     async analyzeImageFile(imagePath) {
         try {
-            const imageData = await fs_1.default.promises.readFile(imagePath);
-            const imagePart = {
-                inlineData: {
-                    data: imageData.toString("base64"),
-                    mimeType: "image/png"
-                }
-            };
-            const prompt = `${this.systemPrompt}\n\nDescribe the content of this image in a short, concise answer. In addition to your main answer, suggest several possible actions or responses the user could take next based on the image. Do not return a structured JSON object, just answer naturally as you would to a user. Be concise and brief.`;
-            const result = await this.model.generateContent([prompt, imagePart]);
-            const response = await result.response;
-            const text = response.text();
-            return { text, timestamp: Date.now() };
+            const provider = this.providerFactory.getActiveProvider();
+            if (!provider.supportsImageAnalysis()) {
+                throw new Error(`Provider ${provider.getProviderName()} does not support image analysis`);
+            }
+            return await provider.analyzeImageFile(imagePath);
         }
         catch (error) {
             console.error("Error analyzing image file:", error);
             throw error;
         }
+    }
+    setProvider(providerType, config) {
+        if (config) {
+            this.providerFactory.initializeProvider(providerType, config);
+        }
+        this.providerFactory.setActiveProvider(providerType);
+    }
+    getAvailableProviders() {
+        return this.providerFactory.getAvailableProviders();
+    }
+    getCurrentProvider() {
+        return {
+            type: this.providerFactory.getActiveProviderType(),
+            name: this.providerFactory.getActiveProvider().getProviderName(),
+            models: this.providerFactory.getActiveProvider().getAvailableModels(),
+            currentModel: this.providerFactory.getActiveProvider().getDefaultModel()
+        };
     }
 }
 exports.LLMHelper = LLMHelper;
