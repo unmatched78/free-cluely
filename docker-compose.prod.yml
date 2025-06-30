@@ -1,9 +1,5 @@
 version: '3.8'
 
-# Load variables from .env (must include GEMINI_API_KEY, NODE_ENV, etc.)
-env_file:
-  - .env
-
 services:
   # Production builder – runs your React/Electron build
   builder:
@@ -11,13 +7,12 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        # Pass NODE_ENV and GEMINI_API_KEY through to the Dockerfile
         NODE_ENV: ${NODE_ENV:-production}
         GEMINI_API_KEY: ${GEMINI_API_KEY}
     container_name: free-cluely-builder
     environment:
-      NODE_ENV: production
-      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      - NODE_ENV=production
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
     command: npm run build
     volumes:
       - ./release:/app/release
@@ -34,9 +29,9 @@ services:
         GEMINI_API_KEY: ${GEMINI_API_KEY}
     container_name: free-cluely-electron-prod
     environment:
-      NODE_ENV: production
-      GEMINI_API_KEY: ${GEMINI_API_KEY}
-      DISPLAY: ":99"
+      - NODE_ENV=production
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - DISPLAY=:99
     command: >
       bash -c "Xvfb :99 -screen 0 1024x768x16 -ac &&
                sleep 5 &&
