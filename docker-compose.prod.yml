@@ -1,39 +1,50 @@
 version: '3.8'
 
+# Load variables from .env (must include GEMINI_API_KEY, NODE_ENV, etc.)
+env_file:
+  - .env
+
 services:
-  # Production build service
-  build:
-    build: 
+  # Production builder – runs your React/Electron build
+  builder:
+    build:
       context: .
       dockerfile: Dockerfile
-    container_name: free-cluely-build
+      args:
+        # Pass NODE_ENV and GEMINI_API_KEY through to the Dockerfile
+        NODE_ENV: ${NODE_ENV:-production}
+        GEMINI_API_KEY: ${GEMINI_API_KEY}
+    container_name: free-cluely-builder
     environment:
-      - NODE_ENV=production
-      - GEMINI_API_KEY=${GEMINI_API_KEY:-dummy-api-key}
+      NODE_ENV: production
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
     command: npm run build
     volumes:
       - ./release:/app/release
     networks:
       - free-cluely-network
 
-  # Electron app service for production
+  # Production Electron app – packages the built assets into your desktop bundle
   electron-app:
     build:
       context: .
       dockerfile: Dockerfile.electron
+      args:
+        NODE_ENV: ${NODE_ENV:-production}
+        GEMINI_API_KEY: ${GEMINI_API_KEY}
     container_name: free-cluely-electron-prod
     environment:
-      - NODE_ENV=production
-      - GEMINI_API_KEY=${GEMINI_API_KEY:-dummy-api-key}
-      - DISPLAY=:99
+      NODE_ENV: production
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      DISPLAY: ":99"
     command: >
-      bash -c "Xvfb :99 -screen 0 1024x768x16 -ac &
-              sleep 5 &&
-              npm run app:build"
+      bash -c "Xvfb :99 -screen 0 1024x768x16 -ac &&
+               sleep 5 &&
+               npm run app:build"
     volumes:
       - ./release:/app/release
     depends_on:
-      - build
+      - builder
     networks:
       - free-cluely-network
 

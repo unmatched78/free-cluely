@@ -1,6 +1,13 @@
+# electron/Dockerfile
+
+# 1. Base image
 FROM node:18-bullseye
 
-# Install dependencies for Electron
+# 2. Build-time arguments (with sane defaults)
+ARG NODE_ENV=development
+ARG GEMINI_API_KEY=dummy-api-key
+
+# 3. System dependencies needed for Electron
 RUN apt-get update && apt-get install -y \
     libgtk-3-0 \
     libnotify4 \
@@ -13,27 +20,25 @@ RUN apt-get update && apt-get install -y \
     libgbm1 \
     libasound2 \
     xvfb \
-    && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/*
 
-# Create app directory
+# 4. Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
+# 5. Copy package manifests and install dependencies
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
 
-# Copy the rest of the application
+# 6. Copy application source
 COPY . .
 
-# Set environment variables
-ENV GEMINI_API_KEY=dummy-api-key
-ENV NODE_ENV=development
-ENV DISPLAY=:99
-
-# Expose port for React app
+# 7. Expose your React dev server port
 EXPOSE 5180
 
-# Start command
+# 8. Promote build args to runtime environment variables
+ENV NODE_ENV=${NODE_ENV}
+ENV GEMINI_API_KEY=${GEMINI_API_KEY}
+ENV DISPLAY=:99
+
+# 9. Default start command (React); overridden by Compose for electron-app
 CMD ["npm", "run", "dev"]

@@ -1,12 +1,18 @@
 version: '3'
 
+# Optional: automatically pick up .env in this folder
+env_file:
+  - .env
+
 services:
   react-app:
     build: .
     ports:
       - "5180:5180"
     environment:
-      - GEMINI_API_KEY=dummy-api-key
+      # Docker Compose will replace ${GEMINI_API_KEY} with the value
+      # from your shell or from .env
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
       - NODE_ENV=development
     command: npm run dev -- --host 0.0.0.0
     volumes:
@@ -17,13 +23,13 @@ services:
   electron-app:
     build: .
     environment:
-      - GEMINI_API_KEY=dummy-api-key
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
       - NODE_ENV=development
       - DISPLAY=:99
     command: >
-      bash -c "Xvfb :99 -screen 0 1024x768x16 -ac &
-              sleep 2 &&
-              npm run electron:dev"
+      bash -c "Xvfb :99 -screen 0 1024x768x16 -ac &&
+               sleep 2 &&
+               npm run electron:dev"
     volumes:
       - ./electron:/app/electron
       - ./dist-electron:/app/dist-electron
