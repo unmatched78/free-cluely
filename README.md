@@ -378,33 +378,21 @@ Please ensure your code follows the project's coding standards and includes appr
 
 ### Development Guidelines
 
-- Use TypeScript for all new code
 - Follow the existing code style and formatting
-- Write tests for new features
+- Write tests for new features in possible
 - Update documentation when adding or changing features
-- Keep pull requests focused on a single feature or bug fix
-
-## 📄 License
-
-This project is a fork from the original creator [@Prat011](https://github.com/Prat011). If you want to use it, you must align with the original creator's license requirements.
-
----
+- It is better to keep pull requests focused on a single feature or bug fix
 
 ## 🙏 Acknowledgements
 
-- [Electron](https://www.electronjs.org/) - Desktop application framework
-- [React](https://reactjs.org/) - UI library
-- [TypeScript](https://www.typescriptlang.org/) - Type-safe JavaScript
-- [Vite](https://vitejs.dev/) - Frontend build tool
-- [Tailwind CSS](https://tailwindcss.com/) - CSS framework
-- [Google Gemini AI](https://ai.google.dev/) - AI model for generating solutions
-- [OpenAI](https://openai.com/) - GPT models for AI solutions
-- [Anthropic Claude](https://www.anthropic.com/) - Claude AI models
-- [Mistral AI](https://mistral.ai/) - Mistral AI models
+This project is a fork from the original creator [@Prat011](https://github.com/Prat011/free-cluely). If you want to use it, you must align with the original creator's license requirements + [LICENSE](https://github.com/unmatched78/free-cluely/blob/main/LICENSE).
+
+---
+
 
 ## 📞 Support
 
 If you encounter any issues or have questions, please [open an issue](https://github.com/unmatched78/free-cluely/issues) on GitHub.
 
-For business inquiries or custom solutions, please contact the repository owner directly.
+For business inquiries or custom solutions, please contact the repository me directly.
 
