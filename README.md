@@ -394,5 +394,5 @@ This project is a fork from the original creator [@Prat011](https://github.com/P
 
 If you encounter any issues or have questions, please [open an issue](https://github.com/unmatched78/free-cluely/issues) on GitHub.
 
-For business inquiries or custom solutions, please contact the repository me directly.
+For business inquiries or custom solutions, please let's talk directly.
 
